@@ -1,5 +1,6 @@
 // Constants and Configuration
 const APP_CONFIG = {
+    SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzQlipj9wNN4rHpiE2SvO07UtjbbAEsHQT7W5xhhk_9zVb-HzJH5sSn0tjntQDjLatd/exec",
     ALPHABET: {
         'а': 'А', 'б': 'Б', 'в': 'v', 'г': 'Г', 'д': 'd',
         'е': 'Е', 'ж': 'Ж', 'з': 'З', 'и': 'И', 'й': 'j',
@@ -55,9 +56,10 @@ const APP_CONFIG = {
 let state = {
     currentPage: 'services',
     currentUser: JSON.parse(localStorage.getItem('currentUser')) || null,
-    users: JSON.parse(localStorage.getItem('irnovia_users')) || [],
-    jobs: JSON.parse(localStorage.getItem('irnovia_jobs')) || [],
-    applies: JSON.parse(localStorage.getItem('irnovia_applies')) || []
+    users: [],
+    jobs: [],
+    applies: [],
+    isLoading: false
 };
 
 // UI Components
@@ -196,14 +198,7 @@ const Pages = {
                     <button class="btn-black" onclick="Navigation.goTo('createJob')">➕ Створити вакансію</button>
                 </div>
                 <div class="services-grid" id="jobsList">
-                    ${state.jobs.length === 0 ? '<p>Вакансій поки не знайдено.</p>' : state.jobs.map((job, idx) => `
-                        <div class="service-card">
-                            <div class="service-title">${job.title}</div>
-                            <p style="margin:15px 0; font-size:14px;">${job.description}</p>
-                            <div style="font-weight:800; color:var(--diia-blue); margin-bottom:15px;">💰 ${job.salary}</div>
-                            <button class="btn-submit" onclick="Jobs.openApply('${job.title.replace(/'/g, "\\'")}')">Відгукнутися</button>
-                        </div>
-                    `).join('')}
+                    <p>Завантаження вакансій...</p>
                 </div>
             </div>
         `;
@@ -266,7 +261,7 @@ const Render = {
                     <label>Код паспорта</label>
                     <input type="text" id="loginCode" placeholder="П•01•DDMMYY•000">
                 </div>
-                <button class="btn-submit" onclick="Auth.login()">Увійти</button>
+                <button id="loginBtn" class="btn-submit" onclick="Auth.login()">Увійти</button>
                 <p style="text-align:center; margin-top:20px;">Ще не маєте паспорта? <a href="#" onclick="Navigation.goTo('register')">Отримати</a></p>
             </div>
         </div>
@@ -304,7 +299,7 @@ const Render = {
                         <option value="05">Комитет 05</option>
                     </select>
                 </div>
-                <button class="btn-submit" onclick="Auth.register()">Сформувати документ</button>
+                <button id="regBtn" class="btn-submit" onclick="Auth.register()">Сформувати документ</button>
             </div>
         </div>
     `,
@@ -327,32 +322,32 @@ const Render = {
                             <div class="doc-grid">
                                 <div class="doc-field">
                                     <div class="label">Ім'я</div>
-                                    <div class="value">${u.firstName}</div>
+                                    <div class="value">${u.firstName || u[0] || '—'}</div>
                                 </div>
                                 <div class="doc-field">
                                     <div class="label">Прізвище</div>
-                                    <div class="value">${u.lastName}</div>
+                                    <div class="value">${u.lastName || u[1] || '—'}</div>
                                 </div>
                                 <div class="doc-field">
                                     <div class="label">Дата народження</div>
-                                    <div class="value">${u.birthYear}</div>
+                                    <div class="value">${u.birthYear || u[2] || '—'}</div>
                                 </div>
                                 <div class="doc-field">
                                     <div class="label">Комітет</div>
-                                    <div class="value">${u.committee}</div>
+                                    <div class="value">${u.committee || u[4] || '—'}</div>
                                 </div>
                             </div>
-                            <div class="doc-code">${u.passportCode}</div>
+                            <div class="doc-code">${u.passportCode || u[5] || '—'}</div>
                         </div>
 
                         <div class="services-grid" style="grid-template-columns: 1fr 1fr;">
                             <div class="service-card" style="cursor:default;">
                                 <div class="service-title">📋 Трудова книжка</div>
-                                <p style="margin-top:10px;">${u.workLog || 'Записів не знайдено'}</p>
+                                <p style="margin-top:10px;">${(u.workLog || u[6] || 'Записів не знайдено').replace(/\n/g, '<br>')}</p>
                             </div>
                             <div class="service-card" style="cursor:default; border-left: 5px solid var(--diia-red);">
                                 <div class="service-title" style="color:var(--diia-red);">⚠️ Судимості</div>
-                                <p style="margin-top:10px;">${u.crimes || 'Чистий перед законом'}</p>
+                                <p style="margin-top:10px;">${(u.crimes || u[7] || 'Чистий перед законом').replace(/\n/g, '<br>')}</p>
                             </div>
                         </div>
                     </div>
@@ -362,24 +357,31 @@ const Render = {
     },
     adminEdit: () => {
         const u = state.users[state.editingUserIdx];
+        const firstName = u[0] || '';
+        const lastName = u[1] || '';
+        const code = u[5] || '';
+        const work = u[6] || '';
+        const crimes = u[7] || '';
+        const notes = u[8] || '';
+
         return `
             <div class="container">
                 <div class="form-card" style="max-width:800px;">
                     <h2>Редагування досьє</h2>
-                    <p style="margin-bottom:20px;">Громадянин: <b>${u.firstName} ${u.lastName}</b> (${u.passportCode})</p>
+                    <p style="margin-bottom:20px;">Громадянин: <b>${firstName} ${lastName}</b> (${code})</p>
                     <div class="form-group">
                         <label>Трудова книжка</label>
-                        <textarea id="editWork" rows="4">${u.workLog || ''}</textarea>
+                        <textarea id="editWork" rows="4">${work}</textarea>
                     </div>
                     <div class="form-group">
                         <label>Судимості</label>
-                        <textarea id="editCriminal" rows="4">${u.crimes || ''}</textarea>
+                        <textarea id="editCriminal" rows="4">${crimes}</textarea>
                     </div>
                     <div class="form-group">
                         <label>Примітки адміна</label>
-                        <textarea id="editNotes" rows="4">${u.adminNotes || ''}</textarea>
+                        <textarea id="editNotes" rows="4">${notes}</textarea>
                     </div>
-                    <button class="btn-submit" onclick="Admin.saveUser()">Зберегти зміни</button>
+                    <button id="saveEditBtn" class="btn-submit" onclick="Admin.saveUser()">Зберегти зміни</button>
                     <button class="btn-text" style="width:100%; margin-top:10px;" onclick="Navigation.goTo('adminPanel'); setTimeout(() => Admin.showTab('users'), 100);">Назад</button>
                 </div>
             </div>
@@ -394,6 +396,7 @@ const Navigation = {
         Render.page();
         window.scrollTo(0, 0);
         if (page === 'news') News.load();
+        if (page === 'jobs') Jobs.load();
     }
 };
 
@@ -413,14 +416,28 @@ Render.page = () => {
 const Auth = {
     login: () => {
         const code = document.getElementById('loginCode').value.trim();
-        const user = state.users.find(u => u.passportCode === code);
-        if (user) {
-            state.currentUser = user;
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            Navigation.goTo('documents');
-        } else {
-            alert('Код не знайдено');
-        }
+        if (!code) return alert('Введіть код');
+
+        const btn = document.getElementById('loginBtn');
+        btn.disabled = true;
+        btn.innerText = "Пошук...";
+
+        fetch(`${APP_CONFIG.SCRIPT_URL}?code=${encodeURIComponent(code)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Код не знайдено');
+                } else {
+                    state.currentUser = data;
+                    localStorage.setItem('currentUser', JSON.stringify(data));
+                    Navigation.goTo('documents');
+                }
+            })
+            .catch(() => alert('Помилка підключення'))
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = "Увійти";
+            });
     },
     register: () => {
         const firstName = document.getElementById('regFirstName').value.trim();
@@ -434,22 +451,33 @@ const Auth = {
             return;
         }
 
+        const btn = document.getElementById('regBtn');
+        btn.disabled = true;
+        btn.innerText = "Обробка...";
+
         const pad = (n) => String(n).padStart(2, '0');
         const d = new Date();
         const dateStr = pad(d.getDate()) + pad(d.getMonth() + 1) + String(d.getFullYear()).slice(-2);
         const rand = Math.floor(Math.random() * 900) + 100;
         const passportCode = `${firstName[0].toUpperCase()}•${committee}•${dateStr}•${rand}`;
 
-        const newUser = {
-            firstName, lastName, birthYear, gender, committee, passportCode,
-            workLog: '', crimes: '', adminNotes: ''
-        };
+        const payload = { firstName, lastName, birthYear, gender, committee, passportCode };
 
-        state.users.push(newUser);
-        localStorage.setItem('irnovia_users', JSON.stringify(state.users));
-        state.currentUser = newUser;
-        localStorage.setItem('currentUser', JSON.stringify(newUser));
-        Navigation.goTo('documents');
+        fetch(APP_CONFIG.SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            state.currentUser = payload;
+            localStorage.setItem('currentUser', JSON.stringify(payload));
+            Navigation.goTo('documents');
+        })
+        .catch(() => alert('Помилка реєстрації'))
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerText = "Сформувати документ";
+        });
     },
     logout: () => {
         state.currentUser = null;
@@ -508,18 +536,51 @@ const News = {
 };
 
 const Jobs = {
+    load: () => {
+        const list = document.getElementById('jobsList');
+        if (!list) return;
+
+        fetch(`${APP_CONFIG.SCRIPT_URL}?type=getJobs`)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) {
+                    state.jobs = data;
+                    list.innerHTML = data.map((job) => `
+                        <div class="service-card">
+                            <div class="service-title">${job[0] || 'Без назви'}</div>
+                            <p style="margin:15px 0; font-size:14px;">${job[1] || ''}</p>
+                            <div style="font-weight:800; color:var(--diia-blue); margin-bottom:15px;">💰 ${job[2] || 'По договоренности'}</div>
+                            <div style="font-size:12px; color:var(--diia-gray-text); margin-bottom:10px;">📞 ${job[3] || ''}</div>
+                            <button class="btn-submit" onclick="Jobs.openApply('${(job[0] || '').replace(/'/g, "\\'")}')">Відгукнутися</button>
+                        </div>
+                    `).join('');
+                }
+            })
+            .catch(() => {
+                list.innerHTML = '<p>Помилка завантаження вакансій</p>';
+            });
+    },
     create: () => {
         if (document.getElementById('jobPassword').value !== APP_CONFIG.JOB_PASSWORD) return alert('Невірний пароль');
         const title = document.getElementById('jobTitle').value.trim();
         if (!title) return alert('Вкажіть назву');
-        state.jobs.push({
-            title,
+
+        const payload = {
+            action: 'postJob',
+            title: title,
             description: document.getElementById('jobDescription').value,
             salary: document.getElementById('jobSalary').value,
             contact: document.getElementById('jobContact').value
-        });
-        localStorage.setItem('irnovia_jobs', JSON.stringify(state.jobs));
-        Navigation.goTo('jobs');
+        };
+
+        fetch(APP_CONFIG.SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload)
+        }).then(() => {
+            alert('Опубліковано!');
+            Navigation.goTo('jobs');
+        }).catch(() => alert('Помилка'));
     },
     openApply: (title) => {
         if (!state.currentUser) return alert('Авторизуйтесь для відгуку');
@@ -529,10 +590,22 @@ const Jobs = {
     submitApply: (title) => {
         const text = document.getElementById('applyText').value.trim();
         if (!text) return alert('Напишіть відгук');
-        state.applies.push({ userCode: state.currentUser.passportCode, jobTitle: title, text: text });
-        localStorage.setItem('irnovia_applies', JSON.stringify(state.applies));
-        alert('Відгук надіслано');
-        Navigation.goTo('jobs');
+
+        const payload = {
+            action: 'applyJob',
+            code: state.currentUser.passportCode || state.currentUser[5],
+            job: title,
+            about: text
+        };
+
+        fetch(APP_CONFIG.SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload)
+        }).then(() => {
+            alert('Відгук надіслано');
+            Navigation.goTo('jobs');
+        }).catch(() => alert('Помилка'));
     }
 };
 
@@ -547,38 +620,73 @@ const Admin = {
     showTab: (tab) => {
         const container = document.getElementById('adminContent');
         if (tab === 'users') {
-            container.innerHTML = `<input type="text" placeholder="Пошук..." oninput="Admin.filterUsers(this.value)" style="margin-bottom:20px;">
-                                   <div id="adminList">${state.users.map((u, i) => `
-                                       <div class="service-card" style="padding:15px; margin-bottom:10px;" onclick="Admin.editUser(${i})">
-                                           <b>${u.firstName} ${u.lastName}</b><br><small>${u.passportCode}</small>
-                                       </div>`).join('')}</div>`;
+            container.innerHTML = '<p>Завантаження...</p>';
+            fetch(`${APP_CONFIG.SCRIPT_URL}?type=all`)
+                .then(res => res.json())
+                .then(data => {
+                    state.users = data;
+                    Admin.renderUsers(data);
+                });
         } else {
-            container.innerHTML = state.applies.map(a => `
-                <div class="service-card" style="margin-bottom:10px;">
-                    <b style="color:var(--diia-blue);">${a.jobTitle}</b><br>
-                    Від: ${a.userCode}<br><p style="margin-top:5px;">${a.text}</p>
-                </div>`).join('');
+            container.innerHTML = '<p>Завантаження відгуків...</p>';
+            fetch(`${APP_CONFIG.SCRIPT_URL}?type=applies`)
+                .then(res => res.json())
+                .then(data => {
+                    container.innerHTML = data.map(a => `
+                        <div class="service-card" style="margin-bottom:10px;">
+                            <b style="color:var(--diia-blue);">${a[1] || 'Вакансия'}</b><br>
+                            Від: ${a[0]}<br><p style="margin-top:5px;">${a[2]}</p>
+                        </div>`).join('');
+                });
         }
+    },
+    renderUsers: (list) => {
+        const container = document.getElementById('adminContent');
+        container.innerHTML = `
+            <input type="text" placeholder="Пошук..." oninput="Admin.filterUsers(this.value)" style="margin-bottom:20px;">
+            <div id="adminList">
+                ${list.map((u, i) => `
+                    <div class="service-card" style="padding:15px; margin-bottom:10px;" onclick="Admin.editUser(${i})">
+                        <b>${u[0]} ${u[1]}</b><br><small>${u[5]}</small>
+                    </div>`).join('')}
+            </div>`;
     },
     filterUsers: (val) => {
         const term = val.toLowerCase();
-        document.getElementById('adminList').innerHTML = state.users.filter(u =>
-            u.firstName.toLowerCase().includes(term) || u.lastName.toLowerCase().includes(term) || u.passportCode.toLowerCase().includes(term)
-        ).map((u, i) => `
+        const filtered = state.users.filter(u =>
+            String(u[0]).toLowerCase().includes(term) ||
+            String(u[1]).toLowerCase().includes(term) ||
+            String(u[5]).toLowerCase().includes(term)
+        );
+        document.getElementById('adminList').innerHTML = filtered.map((u, i) => `
             <div class="service-card" style="padding:15px; margin-bottom:10px;" onclick="Admin.editUser(${state.users.indexOf(u)})">
-                <b>${u.firstName} ${u.lastName}</b><br><small>${u.passportCode}</small>
+                <b>${u[0]} ${u[1]}</b><br><small>${u[5]}</small>
             </div>`).join('');
     },
     editUser: (i) => { state.editingUserIdx = i; Navigation.goTo('adminEdit'); },
     saveUser: () => {
         const u = state.users[state.editingUserIdx];
-        u.workLog = document.getElementById('editWork').value;
-        u.crimes = document.getElementById('editCriminal').value;
-        u.adminNotes = document.getElementById('editNotes').value;
-        localStorage.setItem('irnovia_users', JSON.stringify(state.users));
-        alert('Дані оновлено');
-        Navigation.goTo('adminPanel');
-        setTimeout(() => Admin.showTab('users'), 100);
+        const btn = document.getElementById('saveEditBtn');
+        btn.disabled = true;
+
+        const payload = {
+            action: 'editUser',
+            passportCode: u[5],
+            workLog: document.getElementById('editWork').value,
+            crimes: document.getElementById('editCriminal').value,
+            adminNotes: document.getElementById('editNotes').value
+        };
+
+        fetch(APP_CONFIG.SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload)
+        }).then(() => {
+            alert('Збережено');
+            Navigation.goTo('adminPanel');
+            setTimeout(() => Admin.showTab('users'), 100);
+        }).catch(() => alert('Помилка'))
+        .finally(() => btn.disabled = false);
     }
 };
 
