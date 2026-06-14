@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Irnovia Dox — Цифровое Государство</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-container">
+                    <img src="logo.png" alt="Герб Ирновии" class="state-logo" id="headerLogo">
+                    <div class="logo-text">
+                        <h1>Irnovia Dox</h1>
+                        <p>Государственные услуги</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="content" id="mainContent">
+            <!-- Content will be injected by JS -->
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav" id="bottomNav">
+            <div class="nav-item active" data-page="documents">
+                <div class="nav-icon">📄</div>
+                <span>Документы</span>
+            </div>
+            <div class="nav-item" data-page="services">
+                <div class="nav-icon">💼</div>
+                <span>Услуги</span>
+            </div>
+            <div class="nav-item" data-page="notifications">
+                <div class="nav-icon">🔔</div>
+                <span>Уведомления</span>
+            </div>
+            <div class="nav-item" data-page="menu">
+                <div class="nav-icon">☰</div>
+                <span>Меню</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Modals and Overlays -->
+    <div id="loader" class="loader-overlay hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Audio Player -->
+    <audio id="bgAudio" loop>
+        <source src="https://www.dropbox.com/scl/fi/5j64cfujhng8pgyu0rrpm/.mp3?rlkey=old2xmltro4qu49z8hbqn467n&st=ns4o1pmq&raw=1" type="audio/mpeg">
+    </audio>
+    <button id="audioToggle" class="audio-toggle">🔇</button>
+
+    <script src="app.js"></script>
+</body>
+</html>
