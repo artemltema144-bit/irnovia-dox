@@ -34,7 +34,7 @@ const APP_CONFIG = {
         "храбрость": "ХrабросТЬ", "химик": "Химик", "хозяин": "ХозяиN",
         "цель": "Цель", "центр": "ЦеNТr", "цена": "ЦеNа",
         "честь": "ЧесТЬ", "чистота": "ЧисТоТа", "чугун": "ЧугуN",
-        "шеренга": "ШереNга", "штурм": "ШТurm", "шрихта": "ШрихТа",
+        "шерунга": "ШереNга", "штурм": "ШТurm", "шрихта": "ШрихТа",
         "щит": "ЩиТ", "щедрость": "ЩеDросТЬ", "щелочь": "Щелочь",
         "тыл": "ТЫl", "рывок": "РЫvок", "высота": "ВЫsоТа",
         "энергия": "ЭNергiя", "эшелон": "ЭшелоN", "эфир": "Эfiр",
@@ -45,15 +45,15 @@ const APP_CONFIG = {
     },
     ADMIN_CODE: '3495',
     JOB_PASSWORD: '8797',
-    STATE_NAME: 'Ирновия',
-    DYNASTY: 'Артемл',
-    TSAR: 'Артем',
-    PM: 'Семен Дор'
+    STATE_NAME: 'Irnovia Dox',
+    DYNASTY: 'Arteml',
+    TSAR: 'Artem',
+    PM: 'Semen Dor'
 };
 
 // State Management
 let state = {
-    currentPage: 'documents',
+    currentPage: 'services',
     currentUser: JSON.parse(localStorage.getItem('currentUser')) || null,
     users: JSON.parse(localStorage.getItem('irnovia_users')) || [],
     jobs: JSON.parse(localStorage.getItem('irnovia_jobs')) || [],
@@ -62,552 +62,364 @@ let state = {
 
 // UI Components
 const Pages = {
-    documents: () => {
-        if (!state.currentUser) {
-            return Render.login();
-        }
-        return Render.profile();
-    },
+    hero: () => `
+        <section class="hero">
+            <div class="container">
+                <h1>Державні послуги онлайн</h1>
+                <p style="font-size:20px; color:var(--diia-gray-text);">Зручно. Швидко. Надійно.</p>
+            </div>
+        </section>
+    `,
     services: () => {
         return `
-            <div class="page-header">
-                <h2>Услуги</h2>
-            </div>
-            <div class="card" onclick="Navigation.goTo('jobs')">
-                <div style="display:flex; align-items:center; gap:15px;">
-                    <div style="font-size:30px;">💼</div>
-                    <div>
-                        <div style="font-weight:600;">Биржа труда</div>
-                        <div style="font-size:12px; color:var(--text-secondary);">Поиск работы и вакансии</div>
+            ${Pages.hero()}
+            <div class="container">
+                <h2 style="margin-bottom:30px;">Популярні послуги</h2>
+                <div class="services-grid">
+                    <div class="service-card" onclick="Navigation.goTo('jobs')">
+                        <div class="service-icon">💼</div>
+                        <div class="service-title">Біржа труда</div>
+                        <p style="font-size:14px; color:var(--diia-gray-text); margin-top:10px;">Пошук роботи та створення вакансій у державі.</p>
                     </div>
-                </div>
-            </div>
-            <div class="card" onclick="Navigation.goTo('translator')">
-                <div style="display:flex; align-items:center; gap:15px;">
-                    <div style="font-size:30px;">🌐</div>
-                    <div>
-                        <div style="font-weight:600;">Переводчик</div>
-                        <div style="font-size:12px; color:var(--text-secondary);">Лингвистическая унификация</div>
+                    <div class="service-card" onclick="Navigation.goTo('translator')">
+                        <div class="service-icon">🌐</div>
+                        <div class="service-title">Переводчик</div>
+                        <p style="font-size:14px; color:var(--diia-gray-text); margin-top:10px;">Протокол лінгвістичної уніфікації Ірновії.</p>
                     </div>
-                </div>
-            </div>
-            <div class="card" onclick="Navigation.goTo('news')">
-                <div style="display:flex; align-items:center; gap:15px;">
-                    <div style="font-size:30px;">📰</div>
-                    <div>
-                        <div style="font-weight:600;">Новости</div>
-                        <div style="font-size:12px; color:var(--text-secondary);">События государства</div>
+                    <div class="service-card" onclick="Navigation.goTo('news')">
+                        <div class="service-icon">📰</div>
+                        <div class="service-title">Новини</div>
+                        <p style="font-size:14px; color:var(--diia-gray-text); margin-top:10px;">Офіційні повідомлення та події держави.</p>
+                    </div>
+                    <div class="service-card" onclick="Navigation.goTo('stateInfo')">
+                        <div class="service-icon">🏛️</div>
+                        <div class="service-title">Про державу</div>
+                        <p style="font-size:14px; color:var(--diia-gray-text); margin-top:10px;">Історія, правителі та державний устрій.</p>
                     </div>
                 </div>
             </div>
         `;
     },
-    notifications: () => {
-        return `
-            <div class="page-header">
-                <h2>Уведомления</h2>
-            </div>
-            <div class="empty-state" style="text-align:center; padding:40px; color:var(--text-secondary);">
-                <div>📭</div>
-                <p>У вас пока нет новых уведомлений</p>
-            </div>
-        `;
-    },
-    menu: () => {
-        return `
-            <div class="page-header">
-                <h2>Меню</h2>
-            </div>
-            <div class="card" onclick="Navigation.goTo('stateInfo')">
-                <div style="font-weight:600;">🛡️ Информация о государстве</div>
-            </div>
-            <div class="card" onclick="Navigation.goTo('adminLogin')">
-                <div style="font-weight:600;">🔐 Админ-панель</div>
-            </div>
-            ${state.currentUser ? `<button class="btn btn-secondary" onclick="Auth.logout()" style="margin-top:20px; background:#FFE5E5; color:#FF3B30;">Выйти из аккаунта</button>` : ''}
-        `;
+    documents: () => {
+        if (!state.currentUser) return Render.login();
+        return Render.profile();
     },
     stateInfo: () => {
         return `
-            <div class="page-header">
-                <h2>Государство</h2>
+            <div class="container" style="padding-top:60px;">
+                <h1>Про державу</h1>
+                <div class="form-card" style="max-width:800px; margin-top:30px;">
+                    <h3 style="margin-bottom:20px;">Загальні відомості</h3>
+                    <p style="font-size:18px; line-height:1.6;">
+                        <b>Ірновія</b> — могутня держава з 8000-річною історією, що процвітає під мудрим правлінням династії <b>${APP_CONFIG.DYNASTY}</b>.<br><br>
+                        Сучасний устрій поєднує вікові традиції та цифрові технології. Кожен громадянин є частиною великої системи, об'єднаної спільною метою та мовою.<br><br>
+                        Глава держави: <b>Цар ${APP_CONFIG.TSAR}</b>.<br>
+                        Прем'єр-міністр: <b>${APP_CONFIG.PM}</b>.<br>
+                    </p>
+                </div>
+                <button class="btn-black" style="margin-top:20px;" onclick="Navigation.goTo('services')">Повернутися</button>
             </div>
-            <div class="card">
-                <div style="font-weight:600; margin-bottom:10px;">Общие сведения</div>
-                <p style="font-size:14px; line-height:1.5;">
-                    <b>Ирновия</b> — демократическое государство с 8000-летней историей под правлением династии <b>${APP_CONFIG.DYNASTY}</b>.<br>
-                    Глава государства: <b>Царь ${APP_CONFIG.TSAR}</b>.<br>
-                    Премьер-министр: <b>${APP_CONFIG.PM}</b>.<br>
-                    Законодательный орган: <b>Народная коллегия</b>.
-                </p>
-            </div>
-            <button class="btn btn-secondary" onclick="Navigation.goTo('menu')">Назад</button>
         `;
     },
     adminLogin: () => {
         return `
-            <div class="page-header">
-                <h2>Вход в админ-панель</h2>
+            <div class="container">
+                <div class="form-card">
+                    <h2>Вхід до адмін-панелі</h2>
+                    <p style="margin-bottom:20px; color:var(--diia-gray-text);">Тільки для уповноважених осіб</p>
+                    <div class="form-group">
+                        <label>Код доступу</label>
+                        <input type="password" id="adminCode" placeholder="••••">
+                    </div>
+                    <button class="btn-submit" onclick="Admin.login()">Увійти</button>
+                </div>
             </div>
-            <div class="card">
-                <input type="password" id="adminCode" placeholder="Код доступа">
-                <button class="btn btn-primary" onclick="Admin.login()">Войти</button>
-            </div>
-            <button class="btn btn-secondary" onclick="Navigation.goTo('menu')">Назад</button>
         `;
     },
     adminPanel: () => {
         return `
-            <div class="page-header">
-                <h2>Админ-панель</h2>
+            <div class="container" style="padding-top:60px;">
+                <h1>Адмін-панель</h1>
+                <div style="display:flex; gap:20px; margin:30px 0;">
+                    <button class="btn-black" onclick="Admin.showTab('users')">Громадяни</button>
+                    <button class="btn-black" onclick="Admin.showTab('applies')">Відгуки</button>
+                </div>
+                <div id="adminContent"></div>
             </div>
-            <div class="tabs" style="display:flex; gap:10px; margin-bottom:20px;">
-                <button class="btn btn-secondary" style="flex:1;" onclick="Admin.showTab('users')">Граждане</button>
-                <button class="btn btn-secondary" style="flex:1;" onclick="Admin.showTab('applies')">Отклики</button>
-            </div>
-            <div id="adminContent"></div>
-            <button class="btn btn-secondary" style="margin-top:20px;" onclick="Navigation.goTo('menu')">Выйти из панели</button>
         `;
     },
     news: () => {
         return `
-            <div class="page-header">
-                <h2>Новости Ирновии</h2>
+            <div class="container" style="padding-top:60px;">
+                <h1>Новини держави</h1>
+                <div id="newsFeed" style="margin-top:40px;">
+                    <p>Завантаження офіційних повідомлень...</p>
+                </div>
             </div>
-            <div id="newsFeed">
-                <div class="loading" style="text-align:center; padding:20px;">Загрузка новостей...</div>
+        `;
+    },
+    translator: () => {
+        return `
+            <div class="container" style="padding-top:60px;">
+                <h1>Переводчик Ірновії</h1>
+                <div class="services-grid" style="grid-template-columns: 2fr 1fr; margin-top:40px;">
+                    <div class="form-card" style="margin:0; max-width:none;">
+                        <div class="form-group">
+                            <label>Вхідний текст (Кирилиця)</label>
+                            <textarea id="translateInput" rows="6" placeholder="Введіть текст..." oninput="Translator.translate()"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Результат (Ірновійська)</label>
+                            <div id="translateOutput" style="padding:15px; background:var(--diia-gray-bg); border-radius:8px; min-height:100px; font-weight:700;"></div>
+                        </div>
+                        <button class="btn-black" onclick="Translator.copy()">Копіювати результат</button>
+                    </div>
+                    <div class="form-card" style="margin:0; max-width:none;">
+                        <h3 style="margin-bottom:15px;">Еталони</h3>
+                        <div id="dictBox" style="max-height:400px; overflow-y:auto;">
+                             ${Object.keys(APP_CONFIG.DICTIONARY).map(word => `
+                                <div style="padding:10px; border-bottom:1px solid #eee; cursor:pointer;" onclick="Translator.addWord('${word}')">
+                                    <b>${word}</b><br><span style="color:var(--diia-blue);">${APP_CONFIG.DICTIONARY[word]}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
     },
     jobs: () => {
         return `
-            <div class="page-header">
-                <h2>Биржа труда</h2>
+            <div class="container" style="padding-top:60px;">
+                <div class="flex-between" style="margin-bottom:40px;">
+                    <h1>Біржа труда</h1>
+                    <button class="btn-black" onclick="Navigation.goTo('createJob')">➕ Створити вакансію</button>
+                </div>
+                <div class="services-grid" id="jobsList">
+                    ${state.jobs.length === 0 ? '<p>Вакансій поки не знайдено.</p>' : state.jobs.map((job, idx) => `
+                        <div class="service-card">
+                            <div class="service-title">${job.title}</div>
+                            <p style="margin:15px 0; font-size:14px;">${job.description}</p>
+                            <div style="font-weight:800; color:var(--diia-blue); margin-bottom:15px;">💰 ${job.salary}</div>
+                            <button class="btn-submit" onclick="Jobs.openApply('${job.title.replace(/'/g, "\\'")}')">Відгукнутися</button>
+                        </div>
+                    `).join('')}
+                </div>
             </div>
-            <div id="jobsList">
-                ${state.jobs.length === 0 ? '<p style="text-align:center; color:var(--text-secondary);">Вакансий пока нет</p>' : state.jobs.map((job, idx) => `
-                    <div class="card">
-                        <div style="font-weight:600; color:var(--primary-blue);">${job.title}</div>
-                        <div style="font-size:14px; margin:8px 0;">${job.description}</div>
-                        <div style="font-weight:600;">💰 ${job.salary}</div>
-                        <button class="btn btn-primary" style="margin-top:12px; padding:8px;" onclick="Jobs.openApply('${job.title}')">Откликнуться</button>
-                    </div>
-                `).join('')}
-            </div>
-            <button class="btn btn-secondary" onclick="Navigation.goTo('createJob')">➕ Создать вакансию</button>
         `;
     },
     createJob: () => {
         return `
-            <div class="page-header">
-                <h2>Создать вакансию</h2>
+             <div class="container">
+                <div class="form-card">
+                    <h2>Створити вакансію</h2>
+                    <div class="form-group">
+                        <label>Пароль доступу</label>
+                        <input type="password" id="jobPassword">
+                    </div>
+                    <div class="form-group">
+                        <label>Назва вакансії</label>
+                        <input type="text" id="jobTitle">
+                    </div>
+                    <div class="form-group">
+                        <label>Опис</label>
+                        <textarea id="jobDescription" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Зарплата</label>
+                        <input type="text" id="jobSalary">
+                    </div>
+                    <div class="form-group">
+                        <label>Контакт</label>
+                        <input type="text" id="jobContact">
+                    </div>
+                    <button class="btn-submit" onclick="Jobs.create()">Опублікувати</button>
+                    <button class="btn-text" style="width:100%; margin-top:15px;" onclick="Navigation.goTo('jobs')">Скасувати</button>
+                </div>
             </div>
-            <div class="card">
-                <input type="password" id="jobPassword" placeholder="Пароль доступа">
-                <input type="text" id="jobTitle" placeholder="Название вакансии">
-                <textarea id="jobDescription" placeholder="Описание работы..."></textarea>
-                <input type="text" id="jobSalary" placeholder="Зарплата">
-                <input type="text" id="jobContact" placeholder="Контакт для связи">
-                <button class="btn btn-primary" onclick="Jobs.create()">Опубликовать</button>
-            </div>
-            <button class="btn btn-secondary" onclick="Navigation.goTo('jobs')">Назад</button>
         `;
     },
     apply: (jobTitle) => {
         return `
-            <div class="page-header">
-                <h2>Откликнуться</h2>
-            </div>
-            <div class="card">
-                <div style="font-weight:600; margin-bottom:12px;">Вакансия: ${jobTitle}</div>
-                <textarea id="applyText" placeholder="Расскажите о себе..."></textarea>
-                <button class="btn btn-primary" onclick="Jobs.submitApply('${jobTitle}')">Отправить отклик</button>
-            </div>
-            <button class="btn btn-secondary" onclick="Navigation.goTo('jobs')">Назад</button>
-        `;
-    },
-    translator: () => {
-        return `
-            <div class="page-header">
-                <h2>Переводчик</h2>
-            </div>
-            <div class="card">
-                <textarea id="translateInput" placeholder="Введите текст на русском..." oninput="Translator.translate()"></textarea>
-                <div id="translateOutput" style="margin-top:15px; font-weight:600; padding:12px; background:#F2F2F7; border-radius:10px; min-height:50px;"></div>
-                <button class="btn btn-primary" style="margin-top:15px;" onclick="Translator.copy()">Копировать результат</button>
-            </div>
-            <div class="card">
-                <div style="font-weight:600; margin-bottom:10px;">Библиотека эталонов</div>
-                <div id="dictBox" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; max-height:200px; overflow-y:auto; font-size:12px;">
-                    ${Object.keys(APP_CONFIG.DICTIONARY).map(word => `
-                        <div style="background:#F2F2F7; padding:8px; border-radius:6px; cursor:pointer;" onclick="Translator.addWord('${word}')">
-                            <b>${word}</b> → ${APP_CONFIG.DICTIONARY[word]}
-                        </div>
-                    `).join('')}
+            <div class="container">
+                <div class="form-card">
+                    <h2>Відгукнутися</h2>
+                    <p style="margin-bottom:20px;">Посада: <b>${jobTitle}</b></p>
+                    <div class="form-group">
+                        <label>Розкажіть про себе</label>
+                        <textarea id="applyText" rows="6" placeholder="Досвід, навички..."></textarea>
+                    </div>
+                    <button class="btn-submit" onclick="Jobs.submitApply('${jobTitle.replace(/'/g, "\\'")}')">Надіслати відгук</button>
+                    <button class="btn-text" style="width:100%; margin-top:10px;" onclick="Navigation.goTo('jobs')">Назад</button>
                 </div>
             </div>
         `;
-    }
-};
-
-const Translator = {
-    translate: () => {
-        let text = document.getElementById('translateInput').value;
-        text = text.replace(/кх/gi, match => match[0] === match[0].toUpperCase() ? 'Q' : 'q');
-        text = text.replace(/вв/gi, match => match[0] === match[0].toUpperCase() ? 'W' : 'w');
-
-        const tokens = text.split(/([ \n\t.,!?;:()""''])/);
-        const result = tokens.map(token => {
-            if (!token || /^[ \n\t.,!?;:()""'']$/.test(token)) return token;
-            const lowerToken = token.toLowerCase();
-            if (APP_CONFIG.DICTIONARY[lowerToken]) {
-                return APP_CONFIG.DICTIONARY[lowerToken];
-            }
-            return token.split('').map(char => {
-                const lowerChar = char.toLowerCase();
-                const irnovChar = APP_CONFIG.ALPHABET[lowerChar];
-                if (!irnovChar) return char;
-                return (char === char.toUpperCase() && char !== char.toLowerCase()) ? irnovChar.toUpperCase() : irnovChar.toLowerCase();
-            }).join('');
-        }).join('');
-        document.getElementById('translateOutput').innerText = result;
-    },
-    copy: () => {
-        const text = document.getElementById('translateOutput').innerText;
-        navigator.clipboard.writeText(text).then(() => alert('Скопировано!'));
-    },
-    addWord: (word) => {
-        const input = document.getElementById('translateInput');
-        input.value += (input.value ? ' ' : '') + word;
-        Translator.translate();
-    }
-};
-
-const News = {
-    load: async () => {
-        const feed = document.getElementById('newsFeed');
-        if (!feed) return;
-
-        try {
-            const response = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://rss.app/feeds/JAKqN1RRNxVEIU0k.xml'));
-            const xmlText = await response.text();
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-            const items = xmlDoc.querySelectorAll('item');
-
-            feed.innerHTML = '';
-            items.forEach(item => {
-                const title = item.querySelector('title')?.textContent || '';
-                const description = item.querySelector('description')?.textContent || '';
-                const pubDate = item.querySelector('pubDate')?.textContent || '';
-
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">${new Date(pubDate).toLocaleDateString()}</div>
-                    <div style="font-weight:600; margin-bottom:8px;">${title}</div>
-                    <div style="font-size:14px; line-height:1.5;">${description.replace(/<[^>]*>?/gm, '').substring(0, 150)}...</div>
-                `;
-                feed.appendChild(card);
-            });
-        } catch (e) {
-            feed.innerHTML = '<p style="color:var(--primary-red);">Ошибка загрузки новостей</p>';
-        }
-    }
-};
-
-const Jobs = {
-    create: () => {
-        const password = document.getElementById('jobPassword').value;
-        if (password !== APP_CONFIG.JOB_PASSWORD) {
-            alert('Неверный пароль!');
-            return;
-        }
-        const title = document.getElementById('jobTitle').value.trim();
-        const description = document.getElementById('jobDescription').value.trim();
-        const salary = document.getElementById('jobSalary').value.trim();
-        const contact = document.getElementById('jobContact').value.trim();
-
-        if (!title) {
-            alert('Введите название');
-            return;
-        }
-
-        const newJob = { title, description, salary, contact };
-        state.jobs.push(newJob);
-        localStorage.setItem('irnovia_jobs', JSON.stringify(state.jobs));
-        alert('Вакансия создана!');
-        Navigation.goTo('jobs');
-    },
-    openApply: (title) => {
-        if (!state.currentUser) {
-            alert('Войдите в систему, чтобы откликнуться');
-            Navigation.goTo('documents');
-            return;
-        }
-        state.tempJobTitle = title;
-        Navigation.goTo('apply');
-    },
-    submitApply: (title) => {
-        const text = document.getElementById('applyText').value.trim();
-        if (!text) {
-            alert('Напишите что-нибудь');
-            return;
-        }
-        const apply = {
-            userCode: state.currentUser.passportCode,
-            jobTitle: title,
-            text: text
-        };
-        state.applies.push(apply);
-        localStorage.setItem('irnovia_applies', JSON.stringify(state.applies));
-        alert('Отклик отправлен!');
-        Navigation.goTo('jobs');
-    }
-};
-
-const Admin = {
-    login: () => {
-        const code = document.getElementById('adminCode').value;
-        if (code === APP_CONFIG.ADMIN_CODE) {
-            state.isAdmin = true;
-            Navigation.goTo('adminPanel');
-            setTimeout(() => Admin.showTab('users'), 100);
-        } else {
-            alert('Неверный код!');
-        }
-    },
-    showTab: (tab) => {
-        const container = document.getElementById('adminContent');
-        if (tab === 'users') {
-            container.innerHTML = `
-                <input type="text" id="adminSearch" placeholder="Поиск..." oninput="Admin.filterUsers()">
-                <div id="adminUsersList">
-                    ${state.users.map((u, idx) => `
-                        <div class="card" style="padding:12px; margin-bottom:8px;" onclick="Admin.editUser(${idx})">
-                            <div style="font-weight:600;">${u.firstName} ${u.lastName}</div>
-                            <div style="font-size:12px; color:var(--text-secondary);">${u.passportCode}</div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        } else {
-            container.innerHTML = `
-                <div id="adminAppliesList">
-                    ${state.applies.map(a => `
-                        <div class="card" style="padding:12px; margin-bottom:8px;">
-                            <div style="font-weight:600; color:var(--primary-blue);">${a.jobTitle}</div>
-                            <div style="font-size:12px;">От: ${a.userCode}</div>
-                            <div style="font-size:14px; margin-top:5px;">${a.text}</div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-    },
-    filterUsers: () => {
-        const term = document.getElementById('adminSearch').value.toLowerCase();
-        const list = document.getElementById('adminUsersList');
-        const filtered = state.users.filter(u =>
-            u.firstName.toLowerCase().includes(term) ||
-            u.lastName.toLowerCase().includes(term) ||
-            u.passportCode.toLowerCase().includes(term)
-        );
-        list.innerHTML = filtered.map((u, idx) => `
-            <div class="card" style="padding:12px; margin-bottom:8px;" onclick="Admin.editUser(${state.users.indexOf(u)})">
-                <div style="font-weight:600;">${u.firstName} ${u.lastName}</div>
-                <div style="font-size:12px; color:var(--text-secondary);">${u.passportCode}</div>
-            </div>
-        `).join('');
-    },
-    editUser: (idx) => {
-        state.editingUserIdx = idx;
-        Navigation.goTo('adminEdit');
-    },
-    saveUser: () => {
-        const u = state.users[state.editingUserIdx];
-        u.workLog = document.getElementById('editWork').value;
-        u.crimes = document.getElementById('editCriminal').value;
-        u.adminNotes = document.getElementById('editNotes').value;
-        localStorage.setItem('irnovia_users', JSON.stringify(state.users));
-        alert('Сохранено!');
-        Navigation.goTo('adminPanel');
-        setTimeout(() => Admin.showTab('users'), 100);
     }
 };
 
 const Render = {
-    adminEdit: () => {
-        const u = state.users[state.editingUserIdx];
-        return `
-            <div class="page-header">
-                <h2>Редактирование</h2>
-            </div>
-            <div class="card">
-                <div style="font-weight:600; margin-bottom:15px;">${u.firstName} ${u.lastName}</div>
-                <div class="label">Трудовая книжка</div>
-                <textarea id="editWork" rows="3">${u.workLog || ''}</textarea>
-                <div class="label">Судимости</div>
-                <textarea id="editCriminal" rows="3">${u.crimes || ''}</textarea>
-                <div class="label">Заметки админа</div>
-                <textarea id="editNotes" rows="3">${u.adminNotes || ''}</textarea>
-                <button class="btn btn-primary" style="margin-top:15px;" onclick="Admin.saveUser()">Сохранить</button>
-            </div>
-            <button class="btn btn-secondary" onclick="Navigation.goTo('adminPanel'); setTimeout(() => Admin.showTab('users'), 100);">Отмена</button>
-        `;
-    },
-    login: () => {
-        return `
-            <div class="login-container">
-                <div class="page-header">
-                    <h2>Вход</h2>
-                    <p style="color:var(--text-secondary);">Войдите с помощью кода паспорта</p>
+    login: () => `
+        <div class="container">
+            <div class="form-card">
+                <h2>Вхід до кабінету</h2>
+                <div class="form-group">
+                    <label>Код паспорта</label>
+                    <input type="text" id="loginCode" placeholder="П•01•DDMMYY•000">
                 </div>
-                <div class="card">
-                    <input type="text" id="loginCode" placeholder="Код паспорта">
-                    <button class="btn btn-primary" onclick="Auth.login()">Войти</button>
-                </div>
-                <p style="text-align:center; margin-top:20px;">Нет паспорта? <a href="#" onclick="Navigation.goTo('register')">Получить</a></p>
+                <button class="btn-submit" onclick="Auth.login()">Увійти</button>
+                <p style="text-align:center; margin-top:20px;">Ще не маєте паспорта? <a href="#" onclick="Navigation.goTo('register')">Отримати</a></p>
             </div>
-        `;
-    },
-    register: () => {
-        return `
-            <div class="register-container">
-                <div class="page-header">
-                    <h2>Регистрация</h2>
-                    <p style="color:var(--text-secondary);">Заполните данные для выдачи паспорта</p>
+        </div>
+    `,
+    register: () => `
+        <div class="container">
+            <div class="form-card">
+                <h2>Отримати паспорт</h2>
+                <div class="form-group">
+                    <label>Ім'я</label>
+                    <input type="text" id="regFirstName">
                 </div>
-                <div class="card">
-                    <input type="text" id="regFirstName" placeholder="Имя">
-                    <input type="text" id="regLastName" placeholder="Фамилия">
-                    <input type="number" id="regBirthYear" placeholder="Год рождения">
+                <div class="form-group">
+                    <label>Прізвище</label>
+                    <input type="text" id="regLastName">
+                </div>
+                <div class="form-group">
+                    <label>Рік народження</label>
+                    <input type="number" id="regBirthYear">
+                </div>
+                <div class="form-group">
+                    <label>Стать</label>
                     <select id="regGender">
-                        <option value="М">Мужской</option>
-                        <option value="Ж">Женский</option>
+                        <option value="М">Чоловіча</option>
+                        <option value="Ж">Жіноча</option>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label>Комітет</label>
                     <select id="regCommittee">
-                        <option value="01">Комитет 01</option>
-                        <option value="02">Комитет 02</option>
+                        <option value="01">Комітет 01</option>
+                        <option value="02">Комітет 02</option>
                         <option value="03">Комитет 03</option>
                         <option value="04">Комитет 04</option>
                         <option value="05">Комитет 05</option>
                     </select>
-                    <button class="btn btn-primary" onclick="Auth.register()">Выдать паспорт</button>
                 </div>
-                <p style="text-align:center; margin-top:20px;"><a href="#" onclick="Navigation.goTo('documents')">Вернуться ко входу</a></p>
+                <button class="btn-submit" onclick="Auth.register()">Сформувати документ</button>
             </div>
-        `;
-    },
+        </div>
+    `,
     profile: () => {
         const u = state.currentUser;
         return `
-            <div class="passport-card">
-                <div class="passport-header">
-                    <div class="passport-title">ID CARD IRNOVIA</div>
-                    <div style="font-size:20px;">🛡️</div>
-                </div>
-                <div class="passport-content">
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                        <div class="passport-field">
-                            <div class="label">Имя</div>
-                            <div class="value">${u.firstName}</div>
+            <section class="profile-section">
+                <div class="container">
+                    <div class="flex-between" style="margin-bottom:40px;">
+                        <h1>Мій кабінет</h1>
+                        <button class="btn-text" onclick="Auth.logout()">Вийти</button>
+                    </div>
+
+                    <div class="passport-container">
+                        <div class="document-item">
+                            <div class="doc-header">
+                                <div style="font-weight:800; font-size:24px; letter-spacing:2px;">ID CARD IRNOVIA</div>
+                                <div style="font-size:30px;">🛡️</div>
+                            </div>
+                            <div class="doc-grid">
+                                <div class="doc-field">
+                                    <div class="label">Ім'я</div>
+                                    <div class="value">${u.firstName}</div>
+                                </div>
+                                <div class="doc-field">
+                                    <div class="label">Прізвище</div>
+                                    <div class="value">${u.lastName}</div>
+                                </div>
+                                <div class="doc-field">
+                                    <div class="label">Дата народження</div>
+                                    <div class="value">${u.birthYear}</div>
+                                </div>
+                                <div class="doc-field">
+                                    <div class="label">Комітет</div>
+                                    <div class="value">${u.committee}</div>
+                                </div>
+                            </div>
+                            <div class="doc-code">${u.passportCode}</div>
                         </div>
-                        <div class="passport-field">
-                            <div class="label">Фамилия</div>
-                            <div class="value">${u.lastName}</div>
+
+                        <div class="services-grid" style="grid-template-columns: 1fr 1fr;">
+                            <div class="service-card" style="cursor:default;">
+                                <div class="service-title">📋 Трудова книжка</div>
+                                <p style="margin-top:10px;">${u.workLog || 'Записів не знайдено'}</p>
+                            </div>
+                            <div class="service-card" style="cursor:default; border-left: 5px solid var(--diia-red);">
+                                <div class="service-title" style="color:var(--diia-red);">⚠️ Судимості</div>
+                                <p style="margin-top:10px;">${u.crimes || 'Чистий перед законом'}</p>
+                            </div>
                         </div>
                     </div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                        <div class="passport-field">
-                            <div class="label">Год рождения</div>
-                            <div class="value">${u.birthYear}</div>
-                        </div>
-                        <div class="passport-field">
-                            <div class="label">Комитет</div>
-                            <div class="value">${u.committee}</div>
-                        </div>
+                </div>
+            </section>
+        `;
+    },
+    adminEdit: () => {
+        const u = state.users[state.editingUserIdx];
+        return `
+            <div class="container">
+                <div class="form-card" style="max-width:800px;">
+                    <h2>Редагування досьє</h2>
+                    <p style="margin-bottom:20px;">Громадянин: <b>${u.firstName} ${u.lastName}</b> (${u.passportCode})</p>
+                    <div class="form-group">
+                        <label>Трудова книжка</label>
+                        <textarea id="editWork" rows="4">${u.workLog || ''}</textarea>
                     </div>
-                </div>
-                <div class="passport-code">${u.passportCode}</div>
-            </div>
-
-            <div class="card" style="margin-top:20px;">
-                <div style="font-weight:600; margin-bottom:10px;">📋 Трудовая книжка</div>
-                <div id="profileWork" style="font-size:14px; color:var(--text-secondary);">
-                    ${u.workLog || 'Записей нет'}
-                </div>
-            </div>
-
-            <div class="card">
-                <div style="font-weight:600; margin-bottom:10px; color:var(--primary-red);">⚠️ Судимости</div>
-                <div id="profileCriminal" style="font-size:14px; color:var(--primary-red);">
-                    ${u.crimes || 'Чист перед законом'}
+                    <div class="form-group">
+                        <label>Судимості</label>
+                        <textarea id="editCriminal" rows="4">${u.crimes || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Примітки адміна</label>
+                        <textarea id="editNotes" rows="4">${u.adminNotes || ''}</textarea>
+                    </div>
+                    <button class="btn-submit" onclick="Admin.saveUser()">Зберегти зміни</button>
+                    <button class="btn-text" style="width:100%; margin-top:10px;" onclick="Navigation.goTo('adminPanel'); setTimeout(() => Admin.showTab('users'), 100);">Назад</button>
                 </div>
             </div>
         `;
     }
 };
 
-// Navigation Logic
+// Logics
 const Navigation = {
     goTo: (page) => {
         state.currentPage = page;
         Render.page();
+        window.scrollTo(0, 0);
         if (page === 'news') News.load();
-
-        // Update nav active state
-        document.querySelectorAll('.nav-item').forEach(item => {
-            if (item.dataset.page === page) {
-                item.classList.add('active');
-            } else {
-                item.classList.remove('active');
-            }
-        });
     }
 };
 
 Render.page = () => {
-        const main = document.getElementById('mainContent');
-        if (Pages[state.currentPage]) {
-            main.innerHTML = Pages[state.currentPage]();
-        } else if (state.currentPage === 'register') {
-            main.innerHTML = Render.register();
-        } else if (state.currentPage === 'jobs') {
-            main.innerHTML = Pages.jobs();
-        } else if (state.currentPage === 'createJob') {
-            main.innerHTML = Pages.createJob();
-        } else if (state.currentPage === 'apply') {
-            main.innerHTML = Pages.apply(state.tempJobTitle);
-        } else if (state.currentPage === 'stateInfo') {
-            main.innerHTML = Pages.stateInfo();
-        } else if (state.currentPage === 'adminLogin') {
-            main.innerHTML = Pages.adminLogin();
-        } else if (state.currentPage === 'adminPanel') {
-            main.innerHTML = Pages.adminPanel();
-        } else if (state.currentPage === 'adminEdit') {
-            main.innerHTML = Render.adminEdit();
-        } else {
-            main.innerHTML = `<h2>Page ${state.currentPage} not found</h2>`;
-        }
+    const main = document.getElementById('mainContent');
+    if (Pages[state.currentPage]) {
+        main.innerHTML = Pages[state.currentPage]();
+    } else if (state.currentPage === 'register') {
+        main.innerHTML = Render.register();
+    } else if (state.currentPage === 'apply') {
+        main.innerHTML = Pages.apply(state.tempJobTitle);
+    } else if (state.currentPage === 'adminEdit') {
+        main.innerHTML = Render.adminEdit();
+    }
 };
 
-// Auth Logic
 const Auth = {
     login: () => {
         const code = document.getElementById('loginCode').value.trim();
-        if (code === APP_CONFIG.ADMIN_CODE) {
-            alert('Admin access granted (Simulation)');
-            return;
-        }
-
         const user = state.users.find(u => u.passportCode === code);
         if (user) {
             state.currentUser = user;
             localStorage.setItem('currentUser', JSON.stringify(user));
             Navigation.goTo('documents');
         } else {
-            alert('Неверный код паспорта');
+            alert('Код не знайдено');
         }
     },
     register: () => {
@@ -618,7 +430,7 @@ const Auth = {
         const committee = document.getElementById('regCommittee').value;
 
         if (!firstName || !lastName || !birthYear) {
-            alert('Заполните все поля');
+            alert('Заповніть всі поля');
             return;
         }
 
@@ -635,7 +447,6 @@ const Auth = {
 
         state.users.push(newUser);
         localStorage.setItem('irnovia_users', JSON.stringify(state.users));
-
         state.currentUser = newUser;
         localStorage.setItem('currentUser', JSON.stringify(newUser));
         Navigation.goTo('documents');
@@ -643,40 +454,141 @@ const Auth = {
     logout: () => {
         state.currentUser = null;
         localStorage.removeItem('currentUser');
-        Navigation.goTo('documents');
+        Navigation.goTo('services');
     }
 };
 
-// Initialize App
+const Translator = {
+    translate: () => {
+        let text = document.getElementById('translateInput').value;
+        text = text.replace(/кх/gi, match => match[0] === match[0].toUpperCase() ? 'Q' : 'q');
+        text = text.replace(/вв/gi, match => match[0] === match[0].toUpperCase() ? 'W' : 'w');
+
+        const tokens = text.split(/([ \n\t.,!?;:()""''])/);
+        const result = tokens.map(token => {
+            if (!token || /^[ \n\t.,!?;:()""'']$/.test(token)) return token;
+            const lowerToken = token.toLowerCase();
+            if (APP_CONFIG.DICTIONARY[lowerToken]) return APP_CONFIG.DICTIONARY[lowerToken];
+            return token.split('').map(char => {
+                const lowerChar = char.toLowerCase();
+                const irnovChar = APP_CONFIG.ALPHABET[lowerChar];
+                if (!irnovChar) return char;
+                return (char === char.toUpperCase() && char !== char.toLowerCase()) ? irnovChar.toUpperCase() : irnovChar.toLowerCase();
+            }).join('');
+        }).join('');
+        document.getElementById('translateOutput').innerText = result;
+    },
+    copy: () => {
+        navigator.clipboard.writeText(document.getElementById('translateOutput').innerText).then(() => alert('Копійовано!'));
+    },
+    addWord: (word) => {
+        const input = document.getElementById('translateInput');
+        input.value += (input.value ? ' ' : '') + word;
+        Translator.translate();
+    }
+};
+
+const News = {
+    load: async () => {
+        const feed = document.getElementById('newsFeed');
+        if (!feed) return;
+        try {
+            const response = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://rss.app/feeds/JAKqN1RRNxVEIU0k.xml'));
+            const xmlText = await response.text();
+            const items = new DOMParser().parseFromString(xmlText, 'text/xml').querySelectorAll('item');
+            feed.innerHTML = Array.from(items).map(item => `
+                <div class="service-card" style="margin-bottom:20px; cursor:default;">
+                    <div style="font-size:12px; color:var(--diia-gray-text);">${new Date(item.querySelector('pubDate')?.textContent).toLocaleDateString()}</div>
+                    <div class="service-title" style="margin:10px 0;">${item.querySelector('title')?.textContent}</div>
+                    <p>${item.querySelector('description')?.textContent.replace(/<[^>]*>?/gm, '').substring(0, 200)}...</p>
+                </div>
+            `).join('');
+        } catch (e) { feed.innerHTML = '<p>Помилка завантаження новин.</p>'; }
+    }
+};
+
+const Jobs = {
+    create: () => {
+        if (document.getElementById('jobPassword').value !== APP_CONFIG.JOB_PASSWORD) return alert('Невірний пароль');
+        const title = document.getElementById('jobTitle').value.trim();
+        if (!title) return alert('Вкажіть назву');
+        state.jobs.push({
+            title,
+            description: document.getElementById('jobDescription').value,
+            salary: document.getElementById('jobSalary').value,
+            contact: document.getElementById('jobContact').value
+        });
+        localStorage.setItem('irnovia_jobs', JSON.stringify(state.jobs));
+        Navigation.goTo('jobs');
+    },
+    openApply: (title) => {
+        if (!state.currentUser) return alert('Авторизуйтесь для відгуку');
+        state.tempJobTitle = title;
+        Navigation.goTo('apply');
+    },
+    submitApply: (title) => {
+        const text = document.getElementById('applyText').value.trim();
+        if (!text) return alert('Напишіть відгук');
+        state.applies.push({ userCode: state.currentUser.passportCode, jobTitle: title, text: text });
+        localStorage.setItem('irnovia_applies', JSON.stringify(state.applies));
+        alert('Відгук надіслано');
+        Navigation.goTo('jobs');
+    }
+};
+
+const Admin = {
+    login: () => {
+        if (document.getElementById('adminCode').value === APP_CONFIG.ADMIN_CODE) {
+            state.isAdmin = true;
+            Navigation.goTo('adminPanel');
+            setTimeout(() => Admin.showTab('users'), 100);
+        } else alert('Доступ заборонено');
+    },
+    showTab: (tab) => {
+        const container = document.getElementById('adminContent');
+        if (tab === 'users') {
+            container.innerHTML = `<input type="text" placeholder="Пошук..." oninput="Admin.filterUsers(this.value)" style="margin-bottom:20px;">
+                                   <div id="adminList">${state.users.map((u, i) => `
+                                       <div class="service-card" style="padding:15px; margin-bottom:10px;" onclick="Admin.editUser(${i})">
+                                           <b>${u.firstName} ${u.lastName}</b><br><small>${u.passportCode}</small>
+                                       </div>`).join('')}</div>`;
+        } else {
+            container.innerHTML = state.applies.map(a => `
+                <div class="service-card" style="margin-bottom:10px;">
+                    <b style="color:var(--diia-blue);">${a.jobTitle}</b><br>
+                    Від: ${a.userCode}<br><p style="margin-top:5px;">${a.text}</p>
+                </div>`).join('');
+        }
+    },
+    filterUsers: (val) => {
+        const term = val.toLowerCase();
+        document.getElementById('adminList').innerHTML = state.users.filter(u =>
+            u.firstName.toLowerCase().includes(term) || u.lastName.toLowerCase().includes(term) || u.passportCode.toLowerCase().includes(term)
+        ).map((u, i) => `
+            <div class="service-card" style="padding:15px; margin-bottom:10px;" onclick="Admin.editUser(${state.users.indexOf(u)})">
+                <b>${u.firstName} ${u.lastName}</b><br><small>${u.passportCode}</small>
+            </div>`).join('');
+    },
+    editUser: (i) => { state.editingUserIdx = i; Navigation.goTo('adminEdit'); },
+    saveUser: () => {
+        const u = state.users[state.editingUserIdx];
+        u.workLog = document.getElementById('editWork').value;
+        u.crimes = document.getElementById('editCriminal').value;
+        u.adminNotes = document.getElementById('editNotes').value;
+        localStorage.setItem('irnovia_users', JSON.stringify(state.users));
+        alert('Дані оновлено');
+        Navigation.goTo('adminPanel');
+        setTimeout(() => Admin.showTab('users'), 100);
+    }
+};
+
+// Init
 document.addEventListener('DOMContentLoaded', () => {
     Render.page();
-
-    // Audio setup
     const audio = document.getElementById('bgAudio');
     const toggle = document.getElementById('audioToggle');
     let isPlaying = false;
-
-    const toggleAudio = () => {
-        if (!isPlaying) {
-            audio.play().then(() => {
-                isPlaying = true;
-                toggle.innerText = '🔊';
-            }).catch(e => console.log('Interaction needed'));
-        } else {
-            audio.pause();
-            isPlaying = false;
-            toggle.innerText = '🔇';
-        }
-    };
-
-    toggle.addEventListener('click', toggleAudio);
-    document.addEventListener('click', () => {
-        if (!isPlaying) toggleAudio();
-    }, { once: true });
-
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            Navigation.goTo(item.dataset.page);
-        });
-    });
+    const play = () => { if(!isPlaying) { audio.play().then(() => { isPlaying=true; toggle.innerText='🔊'; }); } else { audio.pause(); isPlaying=false; toggle.innerText='🔇'; } };
+    toggle.onclick = play;
+    document.onclick = () => { if(!isPlaying) play(); document.onclick=null; };
 });
