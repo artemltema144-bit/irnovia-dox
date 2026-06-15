@@ -340,6 +340,10 @@ const Render = {
                             <div class="doc-code">${u.passportCode || u[5] || '—'}</div>
                         </div>
 
+                        <div style="margin-bottom:30px;">
+                            <button class="btn-submit" style="background:#28a745; margin-bottom:20px;" onclick="Auth.copyPassport()">📋 Скопировать данные паспорта</button>
+                        </div>
+
                         <div class="services-grid" style="grid-template-columns: 1fr 1fr;">
                             <div class="service-card" style="cursor:default;">
                                 <div class="service-title">📋 Трудовая книжка</div>
@@ -481,6 +485,11 @@ const Auth = {
         state.currentUser = null;
         localStorage.removeItem('currentUser');
         Navigation.goTo('services');
+    },
+    copyPassport: () => {
+        const u = state.currentUser;
+        const text = `Паспорт Гражданина Ирновии\n---------------------------\nИмя: ${u.firstName || u[0]}\nФамилия: ${u.lastName || u[1]}\nГод Рождения: ${u.birthYear || u[2]}\nКомитет: ${u.committee || u[4]}\nКОД ПАСПОРТА: ${u.passportCode || u[5]}`;
+        navigator.clipboard.writeText(text).then(() => alert('Данные паспорта скопированы в буфер обмена!'));
     }
 };
 
@@ -624,7 +633,8 @@ const Admin = {
                 .then(data => {
                     state.users = data;
                     Admin.renderUsers(data);
-                });
+                })
+                .catch(() => { container.innerHTML = '<p>Ошибка загрузки списка граждан.</p>'; });
         } else {
             container.innerHTML = '<p>Загрузка откликов...</p>';
             fetch(`${APP_CONFIG.SCRIPT_URL}?type=applies`)
@@ -635,7 +645,8 @@ const Admin = {
                             <b style="color:var(--diia-blue);">${a[1] || 'Вакансия'}</b><br>
                             От: ${a[0]}<br><p style="margin-top:5px;">${a[2]}</p>
                         </div>`).join('');
-                });
+                })
+                .catch(() => { container.innerHTML = '<p>Ошибка загрузки откликов.</p>'; });
         }
     },
     renderUsers: (list) => {

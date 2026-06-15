@@ -282,9 +282,35 @@ input, select, textarea {
 .hidden { display: none !important; }
 
 @media (max-width: 768px) {
-    .hero h1 { font-size: 32px; }
-    .flex-between { flex-direction: column; align-items: flex-start; gap: 20px; }
-    .nav-links { display: flex; flex-direction: column; gap: 10px; }
-    .auth-links { margin-left: 0; margin-top: 10px; }
+    .hero { padding: 40px 0; margin-bottom: 30px; }
+    .hero h1 { font-size: 28px; }
+    .hero p { font-size: 16px !important; }
+
+    .top-bar .flex-between { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+    .nav-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .nav-links a { margin-right: 0; }
+    .auth-links { margin-left: 0; display: flex; gap: 10px; }
+    .auth-links a { margin-left: 0; }
+
+    .main-header .flex-between { flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+    .state-name { font-size: 18px; }
+    .diia-logo { height: 35px; }
+    .header-actions { margin-top: 10px; width: 100%; justify-content: flex-end; }
+
+    .services-grid { grid-template-columns: 1fr; gap: 15px; }
+
+    .doc-grid { grid-template-columns: 1fr; }
+    .document-item { padding: 25px; border-radius: 16px; }
+    .doc-code { font-size: 18px; margin-top: 25px; }
+
+    .form-card { margin: 20px auto; padding: 20px; border: none; }
+
     .footer-grid { flex-direction: column; text-align: center; gap: 30px; }
+    .footer-links { display: flex; flex-direction: column; gap: 15px; align-items: center; }
+    .footer-links a { margin-left: 0; }
+
+    /* Translator mobile fix */
+    .services-grid[style*="grid-template-columns: 2fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
 }
